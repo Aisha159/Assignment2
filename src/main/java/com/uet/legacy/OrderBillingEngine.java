@@ -6,22 +6,30 @@ import java.util.Map;
 
 public class OrderBillingEngine {
 
-    private String logFilePath = "order_audit.log";
+   private String logFilePath = "order_audit.log";
+private final NotificationService notificationService;
+private final OrderRepository orderRepository;
 
-    private final NotificationService notificationService =
-            new ConsoleNotificationService();
+public OrderBillingEngine() {
+    this(new FileOrderRepository(), new ConsoleNotificationService());
+}
 
-    private final OrderRepository orderRepository;
+public OrderBillingEngine(OrderRepository orderRepository) {
+    this(orderRepository, new ConsoleNotificationService());
+}
 
-    public OrderBillingEngine() {
-        FileOrderRepository repository = new FileOrderRepository();
-        repository.setFilePath(logFilePath);
-        this.orderRepository = repository;
+public OrderBillingEngine(
+        OrderRepository orderRepository,
+        NotificationService notificationService) {
+
+    this.orderRepository = orderRepository;
+    this.notificationService = notificationService;
+
+    if (orderRepository instanceof FileOrderRepository) {
+        ((FileOrderRepository) orderRepository).setFilePath(logFilePath);
     }
+}
 
-    public OrderBillingEngine(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
 
     public boolean processOrder(Map<String, Object> orderData) {
 
